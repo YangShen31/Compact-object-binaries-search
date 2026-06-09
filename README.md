@@ -16,4 +16,4 @@ To select candidates with high lithium absorption, run `3.1_Li_high_Candidates.i
 `4.1_lc_plotting.ipynb` provides codes to plot TESS and ASAS-SN's lightcurves. 
 
 ### 2. Radial Velocities fitting
-`3.2_lc_plotting.ipynb`
+`4.2_RV_fitting.ipynb` provides new radial velocity observations and thejoker sampling codes.  
