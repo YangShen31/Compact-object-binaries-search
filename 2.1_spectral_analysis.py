@@ -13,10 +13,7 @@ from scipy.optimize import curve_fit
 from scipy.stats import norm
 from matplotlib.pyplot import figure
 
-# %%
 df = pd.read_csv('Data/target_LAMOST_RV.csv')
-len(df)
-
 # %%
 def Gaussian_fit(file_name):
 	filepath = '/Users/mac/Desktop/cassi_folder/spectra_file/' + file_name
@@ -55,15 +52,13 @@ def Gaussian_fit(file_name):
 	min_indices = np.where((fx_filtered == min_fx) & (fx_filtered != 0))[0]
 	wv_min = wv_filtered[min_indices]
 
-
-	# %%
 	#calculate the radial velocity
 	def radial_velocity(wv_0, wv): 
 		a = c * (wv - wv_0)/wv_0
 		return a
 
 	v_r = radial_velocity(wv_0_Ha, wv_min)
-	v_r #km/s
+	# %%
 
 	# %% [markdown]
 	# ## Step 2: Find the wavelength of lithium in the emission
@@ -154,6 +149,39 @@ def Gaussian_fit(file_name):
 	chi2 = np.sum(((fx_final - y_pred) / errr_final)**2)
 	reduced_chi2 = chi2 / (len(wv_filtered) - 1)
 
+	# conditions = (W < -0.082) & (W/W_error > 3)
+
+	# if conditions:
+	# 	fig1 = plt.figure()
+	# 	plt.rcParams.update({'font.family':'times'})
+	# 	plt.plot(wv, fx)
+	# 	plt.xlabel('wavelength ($\AA$)', size=13)
+	# 	plt.ylabel('flux', size=13)
+	# 	plt.title(f"Radial Velocity: {v_r}")
+
+	# 	plt.savefig("Data/plots/" + f"{star_name}_whole_plots.png",
+	# 				transparent=False, dpi=900, bbox_inches='tight')
+
+	# 	plt.close(fig1)   # <-- CLOSE FIRST FIGURE
+
+
+	# 	# ---- Second plot ----
+	# 	fig2 = plt.figure(figsize=(10, 6))
+	# 	plt.plot(wv_filtered, fx_final, lw=4)
+	# 	plt.plot(wv, m(wv), color='r', lw=4)
+	# 	plt.xticks(np.arange(6697, 6713, step=3), fontsize=30)
+	# 	plt.yticks(np.arange(0, 1.20, step=0.1), fontsize=30)
+	# 	plt.xlim(wv_Li_min + 15, wv_Li_max - 15)
+	# 	plt.ylim(np.min(fx_normalized_filtered) - 0.1,
+	# 			np.max(fx_normalized_filtered) + 0.1)
+	# 	plt.xlabel('wavelength ($\AA$)', size=23)
+	# 	plt.ylabel('normalized flux', size=23)
+	# 	plt.vlines(x=wv_Li, ymax=1.10, ymin=0.7, color="purple")
+
+	# 	plt.savefig("Data/plots/" + f"{star_name}_Li_fitting.png")
+
+	# 	plt.close(fig2)
+
 	return [star_name, file_name, v_r[0], W, W_error, reduced_chi2]
 
 # %% [markdown]
@@ -170,16 +198,19 @@ Fit = 0
 
 # number of times the signal to noise is less than 10
 SN = 0
-for filename in os.listdir('/Users/mac/Desktop/cassi_folder/spectra_file/'):
-	try:
-		result = Gaussian_fit(filename)
-		results.append(result)
-	except Exception as e:
-		if str(e) == "unsupported operand type(s) for ** or pow(): 'NoneType' and 'float'":
-			Fit += 1
-		if str(e) == "Signal To Noise must be bigger than 10":
-			SN += 1
-		print(f"Error processing file {filename}: {e}")
+
+directory = '/Users/mac/Desktop/cassi_folder/spectra_file/'
+
+for filename in sorted(os.listdir(directory)):
+    try:
+        result = Gaussian_fit(filename)
+        results.append(result)
+    except Exception as e:
+        if str(e) == "unsupported operand type(s) for ** or pow(): 'NoneType' and 'float'":
+            Fit += 1
+        if str(e) == "Signal To Noise must be bigger than 10":
+            SN += 1
+        print(f"Error processing file {filename}: {e}")
 
 
 # %%
